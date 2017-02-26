@@ -44,6 +44,17 @@ namespace ImageSorterTests
             Assert.AreEqual("Exif SubIFD", list[1].Name);
         }
 
+        [TestMethod]
+        public void TestExtractDates()
+        {
+            Model model = new Model();
+            List<DateTime> list = new List<DateTime>(model.GetDatesFromImage("../../Apple iPhone 4.jpg"));
+            DateTime date = new DateTime(2011, 1, 13);
+            Assert.IsTrue(date.Equals(list[0]));
+            Assert.IsTrue(date.Equals(list[1]));
+            Assert.IsTrue(date.Equals(list[2]));
+        }
+
     }
 
     #endregion

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MetadataExtractor;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace ImageSorter
 {
@@ -61,6 +62,30 @@ namespace ImageSorter
             DirectoryInfo targetInfo = System.IO.Directory.CreateDirectory(targetPath);
         }
 
+        /// <summary>
+        /// Returns the exif date data in the given image.
+        /// </summary>
+        public IEnumerable<DateTime> GetDatesFromImage(string imagePath)
+        {
+            List<DateTime> dates = new List<DateTime>();
+            IEnumerable<MetadataExtractor.Directory> dirs = ExtractExIfDirectories(imagePath);
+            foreach(MetadataExtractor.Directory dir in dirs)
+            {
+                foreach(Tag tag in ExtractExIfDateTags(dir))
+                {
+                    dates.Add(ConvertTagToDate(tag));
+                }
+            }
+            return dates;
+        }
+
+        private DateTime ConvertTagToDate(Tag tag)
+        {
+            string dateMatch = @"[1-9][0-9]{3}:[0-9]{2}:[0-9]{2}";
+            string match = Regex.Match(tag.Description, dateMatch).ToString();
+            string[] arr = match.Split(':');
+            return new DateTime(int.Parse(arr[0]), int.Parse(arr[1]), int.Parse(arr[2]));
+        }
 
         public IEnumerable<Tag> ExtractExIfDateTags(MetadataExtractor.Directory dir)
         {
