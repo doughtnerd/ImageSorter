@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSorter", "ImageSorter\ImageSorter.csproj", "{A6E774A6-7934-4570-AEBE-579B3FDBBD54}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageSorterTests", "ImageSorterTests\ImageSorterTests.csproj", "{992819BB-733A-40B6-ABA7-2E18C0E9D36B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6E774A6-7934-4570-AEBE-579B3FDBBD54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6E774A6-7934-4570-AEBE-579B3FDBBD54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6E774A6-7934-4570-AEBE-579B3FDBBD54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6E774A6-7934-4570-AEBE-579B3FDBBD54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{992819BB-733A-40B6-ABA7-2E18C0E9D36B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{992819BB-733A-40B6-ABA7-2E18C0E9D36B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{992819BB-733A-40B6-ABA7-2E18C0E9D36B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{992819BB-733A-40B6-ABA7-2E18C0E9D36B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
