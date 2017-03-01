@@ -12,8 +12,6 @@ namespace ImageSorter
         private ISorterView view;
         private Model model;
 
-
-
         public Controller(ISorterView view)
         {
             this.view = view;

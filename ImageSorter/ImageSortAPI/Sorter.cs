@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MetadataExtractor;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Collections.Concurrent;
 
 namespace ImageSorter
 {
@@ -12,17 +13,17 @@ namespace ImageSorter
         /// <summary>
         /// Dictionary indicating which files belong to which date.
         /// </summary>
-        private Dictionary<DateTime, List<string>> dateMap = new Dictionary<DateTime, List<string>>();
+        private ConcurrentDictionary<DateTime, List<string>> dateMap = new ConcurrentDictionary<DateTime, List<string>>();
 
         /// <summary>
         /// Dictionary where the source image path is the key, the target sorted path is the value.
         /// </summary>
-        private Dictionary<String, List<string>> pathMap = new Dictionary<string, List<string>>();
+        private ConcurrentDictionary<string, FileInfo> pathMap = new ConcurrentDictionary<string, FileInfo>();
 
         /// <summary>
         /// Dictionary indicating renaming of any duplicate file names that were found.
         /// </summary>
-        private Dictionary<String, List<string>> duplicateMap = new Dictionary<string, List<string>>();
+        private ConcurrentDictionary<string, List<string>> duplicateMap = new ConcurrentDictionary<string, List<string>>();
 
         /// <summary>
         /// List of images that could not be sorted.
@@ -60,12 +61,42 @@ namespace ImageSorter
             DirectoryInfo rootInfo = System.IO.Directory.CreateDirectory(rootPath);
             DirectoryInfo targetInfo = System.IO.Directory.CreateDirectory(targetPath);
 
+            SortAllFiles(rootInfo, targetInfo, nTasks);
+            WriteAllFiles(targetInfo, nTasks);
+
+            WriteTrackersToFile(targetPath);
+            ClearTrackers();
+        }
+
+        private void WriteAllFiles(DirectoryInfo targetInfo, int nTasks)
+        {
+            List<Task> tasks = new List<Task>();
+            Queue<string> keys =new Queue<string>(pathMap.Keys);
+            while (keys.Count > 0)
+            {
+                for (int i = 0; i < nTasks; i++)
+                {
+                    if (keys.Count > 0)
+                    {
+                        string key = keys.Dequeue();
+                        FileInfo file;
+                        pathMap.TryGetValue(key, out file);
+                        tasks.Add(Task.Run(() => TransferFile(new FileInfo(key), file)));
+                    }
+                }
+                Task.WaitAll(tasks.ToArray());
+                tasks.Clear();
+            }
+        }
+
+        private void SortAllFiles(DirectoryInfo rootInfo, DirectoryInfo targetInfo, int nTasks)
+        {
             Queue<DirectoryInfo> dirs = new Queue<DirectoryInfo>(GetAllDirectoriesInDirectory(rootInfo));
             dirs.Enqueue(rootInfo);
             List<Task> tasks = new List<Task>();
             while (dirs.Count != 0)
             {
-                for(int i = 0; i < nTasks; i++)
+                for (int i = 0; i < nTasks; i++)
                 {
                     if (dirs.Count > 0)
                     {
@@ -76,9 +107,6 @@ namespace ImageSorter
                 Task.WaitAll(tasks.ToArray());
                 tasks.Clear();
             }
-            Task.WaitAll(tasks.ToArray());
-            WriteTrackersToFile(targetPath);
-            ClearTrackers();
         }
 
         public void WriteTrackersToFile(string rootFolderPath)
@@ -110,13 +138,13 @@ namespace ImageSorter
             }
         }
 
-        private void WriteDictionaryToFile(string path, IDictionary<string, string> dic)
+        private void WriteDictionaryToFile(string path, IDictionary<string, FileInfo> dic)
         {
             using(StreamWriter stream = new StreamWriter(path))
             {
-                foreach(KeyValuePair<string, string> pair in dic)
+                foreach(KeyValuePair<string, FileInfo> pair in dic)
                 {
-                    stream.WriteLine(pair.Key+ " : " + pair.Value);
+                    stream.WriteLine(pair.Value.FullName + " -> " + pair.Key);
                 }
                 stream.Flush();
             }
@@ -228,10 +256,9 @@ namespace ImageSorter
         {
             foreach (FileInfo file in GetAllFilesInDirectory(rootInfo, CreateRegex(this.Extensions), searchChildren))
             {
-                ///TODO: Improve this method by simply returning null date if there is no metadata.
                 try
                 {
-                    TransferFile(GetDestFolderFromDate(file, targetInfo), file);
+                    RegisterFileDestination(GetDestFolderFromDate(file, targetInfo), file);
                 }
                 catch (ArgumentOutOfRangeException)
                 {
@@ -274,11 +301,33 @@ namespace ImageSorter
         /// <summary>
         /// Handles the transfer logic for the file and adds the mapping of the file to this object's pathMap.
         /// </summary>
+        /// 
         private void TransferFile(DirectoryInfo destFolder, FileInfo file)
         {
             string newFilePath = destFolder.FullName + "\\" + file.Name;
 
-            if(AllowDuplicates)
+            file.CopyTo(newFilePath, true);
+
+            if (!CopyFiles)
+            {
+                file.Delete();
+            }
+        }
+
+        private void TransferFile(FileInfo destFile, FileInfo file)
+        {
+            file.CopyTo(destFile.FullName, true);
+
+            if (!CopyFiles)
+            {
+                file.Delete();
+            }
+        }
+
+        private void RegisterFileDestination(DirectoryInfo destFolder, FileInfo file)
+        {
+            string newFilePath = destFolder.FullName + "\\" + file.Name;
+            if (AllowDuplicates)
             {
                 string rename;
                 lock (this)
@@ -288,17 +337,19 @@ namespace ImageSorter
                         ManageDictionary(duplicateMap, newFilePath, rename);
                         newFilePath = rename;
                     }
+                
+                    if(!pathMap.TryAdd(newFilePath, file))
+                    {
+                        Console.Error.WriteLine("Failed to add file" + file.FullName + " to pathMap");
+                    } else
+                    {
+                        Console.WriteLine("Addition of file: " + file.FullName + " successful.");
+                    }
                 }
-            }
-
-            file.CopyTo(newFilePath, true);
-
-            if (!CopyFiles)
+            } else
             {
-                file.Delete();
+                pathMap.AddOrUpdate(newFilePath, file, (o, n) => { return n; });
             }
-
-            ManageDictionary(pathMap, file.FullName, newFilePath);
         }
 
         void ManageDictionary(IDictionary<string, List<string>> dic, string key, string value)
@@ -346,14 +397,19 @@ namespace ImageSorter
             int increment = 1;
             bool flag = false;
             string pathNoExtension;
-            while (File.Exists(path))
+            while (pathMap.ContainsKey(path))
             {
                 flag = true;
-                // path = Regex.Replace(path, Path.GetFileName(path), Path.GetFileNameWithoutExtension(path) + "_" + increment + Path.GetExtension(path));
                 pathNoExtension = Regex.Replace(path, Path.GetFileName(path), Path.GetFileNameWithoutExtension(path));
-                pathNoExtension = Regex.Replace(pathNoExtension, @"^*_\d$", "_" + increment);
+                if(Regex.IsMatch(pathNoExtension, @"^*_\d$"))
+                {
+                    pathNoExtension = Regex.Replace(pathNoExtension, @"^*_\d$", "_" + increment);
+                } else
+                {
+                    pathNoExtension += "_" + increment;
+                }
                 path = pathNoExtension + Path.GetExtension(path);
-
+                increment++;
             }
             suggestedName = path;
             return flag;

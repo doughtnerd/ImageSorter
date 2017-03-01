@@ -43,6 +43,7 @@
             this.optionsTab = new System.Windows.Forms.TabPage();
             this.duplicatesCheckBox = new System.Windows.Forms.CheckBox();
             this.copyCheckBox = new System.Windows.Forms.CheckBox();
+            this.additionalLabel = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.mainTab.SuspendLayout();
             this.optionsTab.SuspendLayout();
@@ -54,7 +55,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.sourceTextBox.Location = new System.Drawing.Point(6, 34);
             this.sourceTextBox.Name = "sourceTextBox";
-            this.sourceTextBox.Size = new System.Drawing.Size(312, 20);
+            this.sourceTextBox.ReadOnly = true;
+            this.sourceTextBox.Size = new System.Drawing.Size(313, 20);
             this.sourceTextBox.TabIndex = 0;
             // 
             // targetTextBox
@@ -63,7 +65,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.targetTextBox.Location = new System.Drawing.Point(7, 113);
             this.targetTextBox.Name = "targetTextBox";
-            this.targetTextBox.Size = new System.Drawing.Size(311, 20);
+            this.targetTextBox.ReadOnly = true;
+            this.targetTextBox.Size = new System.Drawing.Size(312, 20);
             this.targetTextBox.TabIndex = 1;
             // 
             // sourceFolderLabel
@@ -157,7 +160,7 @@
             this.tabs.Location = new System.Drawing.Point(3, 0);
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size(334, 251);
+            this.tabs.Size = new System.Drawing.Size(335, 260);
             this.tabs.TabIndex = 10;
             // 
             // mainTab
@@ -175,19 +178,20 @@
             this.mainTab.Location = new System.Drawing.Point(4, 22);
             this.mainTab.Name = "mainTab";
             this.mainTab.Padding = new System.Windows.Forms.Padding(3);
-            this.mainTab.Size = new System.Drawing.Size(326, 225);
+            this.mainTab.Size = new System.Drawing.Size(327, 234);
             this.mainTab.TabIndex = 0;
             this.mainTab.Text = "Main";
             this.mainTab.UseVisualStyleBackColor = true;
             // 
             // optionsTab
             // 
+            this.optionsTab.Controls.Add(this.additionalLabel);
             this.optionsTab.Controls.Add(this.duplicatesCheckBox);
             this.optionsTab.Controls.Add(this.copyCheckBox);
             this.optionsTab.Location = new System.Drawing.Point(4, 22);
             this.optionsTab.Name = "optionsTab";
             this.optionsTab.Padding = new System.Windows.Forms.Padding(3);
-            this.optionsTab.Size = new System.Drawing.Size(319, 282);
+            this.optionsTab.Size = new System.Drawing.Size(327, 234);
             this.optionsTab.TabIndex = 1;
             this.optionsTab.Text = "Options";
             this.optionsTab.UseVisualStyleBackColor = true;
@@ -195,7 +199,7 @@
             // duplicatesCheckBox
             // 
             this.duplicatesCheckBox.AutoSize = true;
-            this.duplicatesCheckBox.Location = new System.Drawing.Point(6, 137);
+            this.duplicatesCheckBox.Location = new System.Drawing.Point(7, 42);
             this.duplicatesCheckBox.Name = "duplicatesCheckBox";
             this.duplicatesCheckBox.Size = new System.Drawing.Size(104, 17);
             this.duplicatesCheckBox.TabIndex = 1;
@@ -206,7 +210,7 @@
             // copyCheckBox
             // 
             this.copyCheckBox.AutoSize = true;
-            this.copyCheckBox.Location = new System.Drawing.Point(6, 114);
+            this.copyCheckBox.Location = new System.Drawing.Point(7, 19);
             this.copyCheckBox.Name = "copyCheckBox";
             this.copyCheckBox.Size = new System.Drawing.Size(74, 17);
             this.copyCheckBox.TabIndex = 0;
@@ -214,12 +218,23 @@
             this.copyCheckBox.UseVisualStyleBackColor = true;
             this.copyCheckBox.CheckedChanged += new System.EventHandler(this.copyCheckBox_CheckedChanged);
             // 
+            // additionalLabel
+            // 
+            this.additionalLabel.AutoSize = true;
+            this.additionalLabel.Location = new System.Drawing.Point(6, 3);
+            this.additionalLabel.Name = "additionalLabel";
+            this.additionalLabel.Size = new System.Drawing.Size(94, 13);
+            this.additionalLabel.TabIndex = 2;
+            this.additionalLabel.Text = "Additional Settings";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(338, 252);
+            this.ClientSize = new System.Drawing.Size(339, 261);
             this.Controls.Add(this.tabs);
+            this.MaximumSize = new System.Drawing.Size(355, 300);
+            this.MinimumSize = new System.Drawing.Size(355, 300);
             this.Name = "MainForm";
             this.Text = "Image Sorter";
             this.tabs.ResumeLayout(false);
@@ -248,6 +263,7 @@
         private System.Windows.Forms.TabPage optionsTab;
         private System.Windows.Forms.CheckBox duplicatesCheckBox;
         private System.Windows.Forms.CheckBox copyCheckBox;
+        private System.Windows.Forms.Label additionalLabel;
     }
 }
 
