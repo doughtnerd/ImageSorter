@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageSorter;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,5 +9,55 @@ namespace ImageSorter
 {
     class Controller
     {
+        private ISorterView view;
+        private Model model;
+
+        public Controller(ISorterView view)
+        {
+            this.view = view;
+            this.model = new Model();
+            view.SourceChosenEvent += HandleSourceChosen;
+            view.TargetChosenEvent += HandleTargetChosen;
+            view.ThreadsChosenEvent += HandleThreadsChosen;
+            view.AllowDuplicatesEvent += HandleAllowDuplicates;
+            view.CopyFilesEvent += HandleCopyFiles;
+            view.StartEvent += HandleStart;
+            view.CancelEvent += HandleCancel;
+        }
+
+        private void HandleSourceChosen(string s)
+        {
+            model.SourceFolderLocation = s;
+        }
+
+        private void HandleTargetChosen(string s)
+        {
+            model.TargetFolderLocation = s;
+        }
+
+        private void HandleThreadsChosen(int n)
+        {
+            model.NumberOfThreads = n;
+        }
+
+        private void HandleCopyFiles(bool b)
+        {
+            model.CopyFiles = b;
+        }
+
+        private void HandleAllowDuplicates(bool b)
+        {
+            model.AllowDuplicates = b;
+        }
+
+        private void HandleStart()
+        {
+
+        }
+
+        private void HandleCancel()
+        {
+
+        }
     }
 }

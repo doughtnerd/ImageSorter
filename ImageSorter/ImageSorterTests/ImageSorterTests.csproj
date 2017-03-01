@@ -66,16 +66,27 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ImageSorter\ImageSorter.csproj">
-      <Project>{a6e774a6-7934-4570-aebe-579b3fdbbd54}</Project>
-      <Name>ImageSorter</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Apple iPhone 4.jpg" />
+    <Content Include="TestPhotos - Copy\Apple iPhone 4.jpg" />
+    <Content Include="TestPhotos - Copy\Canon EOS REBEL SL1.jpg" />
+    <Content Include="TestPhotos - Copy\SubFolder1\sample_iTunes.mov" />
+    <Content Include="TestPhotos\Apple iPhone 4.jpg" />
+    <Content Include="TestPhotos\Canon EOS REBEL SL1.jpg" />
+    <Content Include="TestPhotos\SubFolder1\sample_iTunes.mov" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="TestPhotos - Copy\SubFolder1\SubSubFolder1\" />
+    <Folder Include="TestPhotos - Copy\SubFolder1\SubSubFolder2\" />
+    <Folder Include="TestPhotos\SubFolder1\SubSubFolder1\" />
+    <Folder Include="TestPhotos\SubFolder1\SubSubFolder2\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ImageSortAPI\ImageSortAPI.csproj">
+      <Project>{eab0b092-fef1-46ab-a194-796984be472d}</Project>
+      <Name>ImageSortAPI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
