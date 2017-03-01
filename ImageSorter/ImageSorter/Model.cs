@@ -42,6 +42,9 @@ namespace ImageSorter
             }
         }
 
-        
+        public void StartSorting()
+        {
+            sorter.SortFolderThreadSafe(this.SourceFolderLocation, this.TargetFolderLocation, this.NumberOfThreads);
+        }
     }
 }

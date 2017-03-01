@@ -14,9 +14,12 @@ namespace ImageSorter
         [STAThread]
         static void Main()
         {
+            
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            var context = ImageSorterApplicationContext.GetContext();
+            ImageSorterApplicationContext.GetContext().RunNew();
+            Application.Run(context);
         }
     }
 }

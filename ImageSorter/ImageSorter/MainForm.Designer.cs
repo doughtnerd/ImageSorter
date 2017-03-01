@@ -52,24 +52,24 @@
             // 
             this.sourceTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.sourceTextBox.Location = new System.Drawing.Point(5, 82);
+            this.sourceTextBox.Location = new System.Drawing.Point(6, 34);
             this.sourceTextBox.Name = "sourceTextBox";
-            this.sourceTextBox.Size = new System.Drawing.Size(305, 20);
+            this.sourceTextBox.Size = new System.Drawing.Size(312, 20);
             this.sourceTextBox.TabIndex = 0;
             // 
             // targetTextBox
             // 
             this.targetTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.targetTextBox.Location = new System.Drawing.Point(6, 161);
+            this.targetTextBox.Location = new System.Drawing.Point(7, 113);
             this.targetTextBox.Name = "targetTextBox";
-            this.targetTextBox.Size = new System.Drawing.Size(304, 20);
+            this.targetTextBox.Size = new System.Drawing.Size(311, 20);
             this.targetTextBox.TabIndex = 1;
             // 
             // sourceFolderLabel
             // 
             this.sourceFolderLabel.AutoSize = true;
-            this.sourceFolderLabel.Location = new System.Drawing.Point(6, 63);
+            this.sourceFolderLabel.Location = new System.Drawing.Point(7, 15);
             this.sourceFolderLabel.Name = "sourceFolderLabel";
             this.sourceFolderLabel.Size = new System.Drawing.Size(117, 13);
             this.sourceFolderLabel.TabIndex = 2;
@@ -78,7 +78,7 @@
             // targetFolderLabel
             // 
             this.targetFolderLabel.AutoSize = true;
-            this.targetFolderLabel.Location = new System.Drawing.Point(9, 142);
+            this.targetFolderLabel.Location = new System.Drawing.Point(10, 94);
             this.targetFolderLabel.Name = "targetFolderLabel";
             this.targetFolderLabel.Size = new System.Drawing.Size(114, 13);
             this.targetFolderLabel.TabIndex = 3;
@@ -86,7 +86,7 @@
             // 
             // sourceButton
             // 
-            this.sourceButton.Location = new System.Drawing.Point(5, 108);
+            this.sourceButton.Location = new System.Drawing.Point(6, 60);
             this.sourceButton.Name = "sourceButton";
             this.sourceButton.Size = new System.Drawing.Size(75, 20);
             this.sourceButton.TabIndex = 4;
@@ -96,7 +96,7 @@
             // 
             // targetButton
             // 
-            this.targetButton.Location = new System.Drawing.Point(6, 187);
+            this.targetButton.Location = new System.Drawing.Point(7, 139);
             this.targetButton.Name = "targetButton";
             this.targetButton.Size = new System.Drawing.Size(75, 20);
             this.targetButton.TabIndex = 5;
@@ -112,7 +112,7 @@
             "2",
             "3",
             "4"});
-            this.numberOfThreads.Location = new System.Drawing.Point(6, 241);
+            this.numberOfThreads.Location = new System.Drawing.Point(7, 193);
             this.numberOfThreads.Name = "numberOfThreads";
             this.numberOfThreads.Size = new System.Drawing.Size(98, 21);
             this.numberOfThreads.TabIndex = 6;
@@ -121,7 +121,7 @@
             // threadCountLabel
             // 
             this.threadCountLabel.AutoSize = true;
-            this.threadCountLabel.Location = new System.Drawing.Point(6, 222);
+            this.threadCountLabel.Location = new System.Drawing.Point(7, 174);
             this.threadCountLabel.Name = "threadCountLabel";
             this.threadCountLabel.Size = new System.Drawing.Size(98, 13);
             this.threadCountLabel.TabIndex = 7;
@@ -129,7 +129,7 @@
             // 
             // startButton
             // 
-            this.startButton.Location = new System.Drawing.Point(154, 239);
+            this.startButton.Location = new System.Drawing.Point(155, 191);
             this.startButton.Name = "startButton";
             this.startButton.Size = new System.Drawing.Size(75, 23);
             this.startButton.TabIndex = 8;
@@ -139,7 +139,7 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(235, 239);
+            this.cancelButton.Location = new System.Drawing.Point(236, 191);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 9;
@@ -154,10 +154,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabs.Controls.Add(this.mainTab);
             this.tabs.Controls.Add(this.optionsTab);
-            this.tabs.Location = new System.Drawing.Point(3, 2);
+            this.tabs.Location = new System.Drawing.Point(3, 0);
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size(327, 308);
+            this.tabs.Size = new System.Drawing.Size(334, 251);
             this.tabs.TabIndex = 10;
             // 
             // mainTab
@@ -175,7 +175,7 @@
             this.mainTab.Location = new System.Drawing.Point(4, 22);
             this.mainTab.Name = "mainTab";
             this.mainTab.Padding = new System.Windows.Forms.Padding(3);
-            this.mainTab.Size = new System.Drawing.Size(319, 282);
+            this.mainTab.Size = new System.Drawing.Size(326, 225);
             this.mainTab.TabIndex = 0;
             this.mainTab.Text = "Main";
             this.mainTab.UseVisualStyleBackColor = true;
@@ -218,11 +218,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(331, 311);
+            this.ClientSize = new System.Drawing.Size(338, 252);
             this.Controls.Add(this.tabs);
             this.Name = "MainForm";
             this.Text = "Image Sorter";
-            this.Load += new System.EventHandler(this.MainForm_Load);
             this.tabs.ResumeLayout(false);
             this.mainTab.ResumeLayout(false);
             this.mainTab.PerformLayout();

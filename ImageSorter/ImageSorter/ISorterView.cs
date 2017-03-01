@@ -16,5 +16,11 @@ namespace ImageSorter
         event Action<bool> AllowDuplicatesEvent;
         event Action StartEvent;
         event Action CancelEvent;
+
+        void ResetControls();
+        void DisableControls();
+
+        void Invoke(Action action);
+
     }
 }

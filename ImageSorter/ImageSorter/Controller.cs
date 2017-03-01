@@ -12,6 +12,8 @@ namespace ImageSorter
         private ISorterView view;
         private Model model;
 
+
+
         public Controller(ISorterView view)
         {
             this.view = view;
@@ -52,12 +54,26 @@ namespace ImageSorter
 
         private void HandleStart()
         {
-
+            view.DisableControls();
+            Task.Run(()=>DoSorting());
         }
 
         private void HandleCancel()
         {
 
+        }
+
+        private void DoSorting()
+        {
+            try
+            {
+                model.StartSorting();
+                view.Invoke(()=> { view.ResetControls(); });
+            }
+            catch (OperationCanceledException)
+            {
+                view.Invoke(() => { view.ResetControls(); });
+            }
         }
     }
 }

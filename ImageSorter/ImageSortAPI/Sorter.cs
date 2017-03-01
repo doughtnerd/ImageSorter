@@ -12,17 +12,17 @@ namespace ImageSorter
         /// <summary>
         /// Dictionary indicating which files belong to which date.
         /// </summary>
-        private Dictionary<DateTime, string> dateMap = new Dictionary<DateTime, string>();
+        private Dictionary<DateTime, List<string>> dateMap = new Dictionary<DateTime, List<string>>();
 
         /// <summary>
         /// Dictionary where the source image path is the key, the target sorted path is the value.
         /// </summary>
-        private Dictionary<string, string> pathMap = new Dictionary<string, string>();
+        private Dictionary<String, List<string>> pathMap = new Dictionary<string, List<string>>();
 
         /// <summary>
         /// Dictionary indicating renaming of any duplicate file names that were found.
         /// </summary>
-        private Dictionary<string, string> duplicateMap = new Dictionary<string, string>();
+        private Dictionary<String, List<string>> duplicateMap = new Dictionary<string, List<string>>();
 
         /// <summary>
         /// List of images that could not be sorted.
@@ -76,22 +76,79 @@ namespace ImageSorter
                 Task.WaitAll(tasks.ToArray());
                 tasks.Clear();
             }
+            Task.WaitAll(tasks.ToArray());
+            WriteTrackersToFile(targetPath);
+            ClearTrackers();
         }
 
         public void WriteTrackersToFile(string rootFolderPath)
         {
-            WriteDictionaryToFile(rootFolderPath +"/Paths.txt", (IDictionary<object, object>)pathMap);
-            WriteDictionaryToFile(rootFolderPath +"/Dates.txt", (IDictionary<object, object>)this.dateMap);
-            WriteDictionaryToFile(rootFolderPath +"/Duplicates.txt", (IDictionary<object, object>)this.duplicateMap);
+            WriteDictionaryToFile(rootFolderPath +@"\PathMapping.txt", pathMap);
+            WriteDictionaryToFile(rootFolderPath +@"\DateMapping.txt", this.dateMap);
+            WriteDictionaryToFile(rootFolderPath +@"\DuplicatesMapping.txt", this.duplicateMap);
+            unableToSort.Sort();
+            WriteListToFile(rootFolderPath + @"\UnableToSort.txt", this.unableToSort);
         }
 
-        private void WriteDictionaryToFile(string path, IDictionary<object, object> dic)
+        private void ClearTrackers()
+        {
+            this.pathMap.Clear();
+            this.dateMap.Clear();
+            this.duplicateMap.Clear();
+            this.unableToSort.Clear();
+        }
+
+        private void WriteListToFile(string path, List<string> list)
+        {
+            using (StreamWriter stream = new StreamWriter(path))
+            {
+                foreach (string s in list)
+                {
+                    stream.WriteLine(s);
+                }
+                stream.Flush();
+            }
+        }
+
+        private void WriteDictionaryToFile(string path, IDictionary<string, string> dic)
         {
             using(StreamWriter stream = new StreamWriter(path))
             {
-                foreach(KeyValuePair<object, object> pair in dic)
+                foreach(KeyValuePair<string, string> pair in dic)
                 {
-                    stream.WriteLine(pair.Key.ToString() + " : " + pair.Value.ToString());
+                    stream.WriteLine(pair.Key+ " : " + pair.Value);
+                }
+                stream.Flush();
+            }
+        }
+
+        private void WriteDictionaryToFile(string path, IDictionary<DateTime, List<string>> dic)
+        {
+            using (StreamWriter stream = new StreamWriter(path))
+            {
+                foreach (KeyValuePair<DateTime, List<string>> pair in dic)
+                {
+                    stream.WriteLine(pair.Key.ToString());
+                    foreach(string s in pair.Value)
+                    {
+                        stream.WriteLine("\t" + s);
+                    }
+                }
+                stream.Flush();
+            }
+        }
+
+        private void WriteDictionaryToFile(string path, IDictionary<string, List<string>> dic)
+        {
+            using (StreamWriter stream = new StreamWriter(path))
+            {
+                foreach (KeyValuePair<string, List<string>> pair in dic)
+                {
+                    stream.WriteLine(pair.Key);
+                    foreach (string s in pair.Value)
+                    {
+                        stream.WriteLine("\t" + s);
+                    }
                 }
                 stream.Flush();
             }
@@ -197,7 +254,7 @@ namespace ImageSorter
                 string s = optionals[i];
                 reg += "(" + s + ")|";
             }
-            reg += optionals[optionals.Length - 1] + ")$";
+            reg += "("+ optionals[optionals.Length - 1] + ")$";
             return new Regex(reg, RegexOptions.IgnoreCase);
         }
 
@@ -208,7 +265,7 @@ namespace ImageSorter
         private DirectoryInfo GetDestFolderFromDate(FileInfo file, DirectoryInfo targetRoot)
         {
             DateTime date = ExtractDateFromImage(file.FullName);
-            this.dateMap.Add(date, file.FullName);
+            ManageDictionary(dateMap, date, file.FullName);
             DirectoryInfo year = targetRoot.CreateSubdirectory(date.Year.ToString());
             DirectoryInfo month = year.CreateSubdirectory(date.Month.ToString());
             return month;
@@ -219,15 +276,18 @@ namespace ImageSorter
         /// </summary>
         private void TransferFile(DirectoryInfo destFolder, FileInfo file)
         {
-            string newFilePath = destFolder.FullName + "/" + file.Name;
+            string newFilePath = destFolder.FullName + "\\" + file.Name;
 
             if(AllowDuplicates)
             {
                 string rename;
-                if(DuplicateExists(newFilePath, out rename))
+                lock (this)
                 {
-                    this.duplicateMap.Add(newFilePath, rename);
-                    newFilePath = rename;
+                    if (DuplicateExists(newFilePath, out rename))
+                    {
+                        ManageDictionary(duplicateMap, newFilePath, rename);
+                        newFilePath = rename;
+                    }
                 }
             }
 
@@ -238,7 +298,43 @@ namespace ImageSorter
                 file.Delete();
             }
 
-            this.pathMap.Add(file.FullName, newFilePath);
+            ManageDictionary(pathMap, file.FullName, newFilePath);
+        }
+
+        void ManageDictionary(IDictionary<string, List<string>> dic, string key, string value)
+        {
+            lock (this)
+            {
+                if (dic.ContainsKey(key))
+                {
+                    List<string> list = dic[key];
+                    list.Add(value);
+                }
+                else
+                {
+                    List<string> list = new List<string>();
+                    list.Add(value);
+                    dic.Add(key, list);
+                }
+            }
+        }
+
+        void ManageDictionary(IDictionary<DateTime, List<string>> dic, DateTime key, string value)
+        {
+            lock (this)
+            {
+                if (dic.ContainsKey(key))
+                {
+                    List<string> list = dic[key];
+                    list.Add(value);
+                }
+                else
+                {
+                    List<string> list = new List<string>();
+                    list.Add(value);
+                    dic.Add(key, list);
+                }
+            }
         }
 
         /// <summary>
@@ -249,10 +345,14 @@ namespace ImageSorter
         {
             int increment = 1;
             bool flag = false;
+            string pathNoExtension;
             while (File.Exists(path))
             {
                 flag = true;
-                path = Regex.Replace(path, Path.GetFileName(path), Path.GetFileNameWithoutExtension(path) + "_" + increment + Path.GetExtension(path));
+                // path = Regex.Replace(path, Path.GetFileName(path), Path.GetFileNameWithoutExtension(path) + "_" + increment + Path.GetExtension(path));
+                pathNoExtension = Regex.Replace(path, Path.GetFileName(path), Path.GetFileNameWithoutExtension(path));
+                pathNoExtension = Regex.Replace(pathNoExtension, @"^*_\d$", "_" + increment);
+                path = pathNoExtension + Path.GetExtension(path);
 
             }
             suggestedName = path;
