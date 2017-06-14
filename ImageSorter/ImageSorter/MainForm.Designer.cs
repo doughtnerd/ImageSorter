@@ -41,9 +41,9 @@
             this.tabs = new System.Windows.Forms.TabControl();
             this.mainTab = new System.Windows.Forms.TabPage();
             this.optionsTab = new System.Windows.Forms.TabPage();
+            this.additionalLabel = new System.Windows.Forms.Label();
             this.duplicatesCheckBox = new System.Windows.Forms.CheckBox();
             this.copyCheckBox = new System.Windows.Forms.CheckBox();
-            this.additionalLabel = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.mainTab.SuspendLayout();
             this.optionsTab.SuspendLayout();
@@ -196,6 +196,15 @@
             this.optionsTab.Text = "Options";
             this.optionsTab.UseVisualStyleBackColor = true;
             // 
+            // additionalLabel
+            // 
+            this.additionalLabel.AutoSize = true;
+            this.additionalLabel.Location = new System.Drawing.Point(6, 3);
+            this.additionalLabel.Name = "additionalLabel";
+            this.additionalLabel.Size = new System.Drawing.Size(94, 13);
+            this.additionalLabel.TabIndex = 2;
+            this.additionalLabel.Text = "Additional Settings";
+            // 
             // duplicatesCheckBox
             // 
             this.duplicatesCheckBox.AutoSize = true;
@@ -218,19 +227,10 @@
             this.copyCheckBox.UseVisualStyleBackColor = true;
             this.copyCheckBox.CheckedChanged += new System.EventHandler(this.copyCheckBox_CheckedChanged);
             // 
-            // additionalLabel
-            // 
-            this.additionalLabel.AutoSize = true;
-            this.additionalLabel.Location = new System.Drawing.Point(6, 3);
-            this.additionalLabel.Name = "additionalLabel";
-            this.additionalLabel.Size = new System.Drawing.Size(94, 13);
-            this.additionalLabel.TabIndex = 2;
-            this.additionalLabel.Text = "Additional Settings";
-            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.ClientSize = new System.Drawing.Size(339, 261);
             this.Controls.Add(this.tabs);
             this.MaximumSize = new System.Drawing.Size(355, 300);

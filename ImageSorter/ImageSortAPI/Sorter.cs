@@ -50,12 +50,16 @@ namespace ImageSorter
         /// </summary>
         public Sorter()
         {
-            this.Extensions = new string[] { ".jpg", ".png" };
+            this.Extensions = new string[] { ".jpg", ".png", ".arw", ".cr2", ".dng"};
         }
 
         /// <summary>
-        /// Uses multiple threads to sort a folder and it's images.
+        /// Uses multiple threads to sort all images in the rootPath into the targetPath directory using the
+        /// specified number of threads.
         /// </summary>
+        /// <param name="rootPath">The root folder where sorting should begin</param>
+        /// <param name="targetPath">The root folder where sorted images should be placed</param>
+        /// <param name="nTasks">Number of Tasks to use to sort the images</param>
         public void SortFolderThreadSafe(string rootPath, string targetPath, int nTasks)
         {
             DirectoryInfo rootInfo = System.IO.Directory.CreateDirectory(rootPath);
@@ -66,6 +70,87 @@ namespace ImageSorter
 
             WriteTrackersToFile(targetPath);
             ClearTrackers();
+        }
+
+        /// <summary>
+        /// Requires that valid file paths are passed to the method.
+        /// Handles sorting the image files in the root folder and all sub-folders 
+        /// and producing the sorted results in the target folder.
+        /// </summary>
+        /// <param name="rootPath">The source folder to be sorted</param>
+        /// <param name="targetPath">The target folder where all sorted images should be placed</param>
+        public void SortFolder(string rootPath, string targetPath)
+        {
+            SortFolder(rootPath, targetPath, true);
+        }
+
+        /// <summary>
+        /// Requires that valid file paths are passed to the method.
+        /// Handles sorting the image files in the root folder (and optionally all sub-folders)
+        /// and producing the sorted results in the target folder.
+        /// </summary>
+        /// <param name="rootPath">The source folder to be sorted</param>
+        /// <param name="targetPath">The target folder where all sorted images should be placed</param>
+        /// <param name="searchChildren">True if subfolders should be included in the sort, false otherwise</param>
+        public void SortFolder(string rootPath, string targetPath, bool searchChildren)
+        {
+            DirectoryInfo rootInfo = System.IO.Directory.CreateDirectory(rootPath);
+            DirectoryInfo targetInfo = System.IO.Directory.CreateDirectory(targetPath);
+            SortFolder(rootInfo, targetInfo, searchChildren);
+        }
+
+        /// <summary>
+        /// Requires that valid file paths are passed to the method.
+        /// Sorts an image to a folder on the targetPath based on the image's
+        /// metadata.
+        /// </summary>
+        public void SortImage(string imagePath, string targetPath)
+        {
+            FileInfo image = new FileInfo(imagePath);
+            DirectoryInfo target = System.IO.Directory.CreateDirectory(targetPath);
+            SortImage(image, target);
+
+        }
+
+        /// <summary>
+        /// Recursively gets all files in a directory (and sub-directories) that match the given extension filter
+        /// and returns the results as a list of files.
+        /// </summary>
+        public static List<FileInfo> GetAllFilesInDirectory(DirectoryInfo root, Regex extensionFilter, bool searchChildren)
+        {
+            List<FileInfo> list = new List<FileInfo>();
+            if (searchChildren)
+            {
+                GetAllFilesInDirectory(root, list, extensionFilter);
+            }
+            else
+            {
+                foreach (FileInfo file in root.EnumerateFiles())
+                {
+                    if (extensionFilter.IsMatch(Path.GetExtension(file.FullName)))
+                    {
+                        list.Add(file);
+                    }
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Extract a single date from an image.
+        /// </summary>
+        public static DateTime ExtractDateFromImage(string imagePath)
+        {
+            return new List<DateTime>(GetDatesFromImage(imagePath, t => { return true; }))[0];
+        }
+
+        private void WriteTrackersToFile(string rootFolderPath)
+        {
+            WriteDictionaryToFile(rootFolderPath + @"\PathMapping.txt", pathMap);
+            WriteDictionaryToFile(rootFolderPath + @"\DateMapping.txt", this.dateMap);
+            WriteDictionaryToFile(rootFolderPath + @"\DuplicatesMapping.txt", this.duplicateMap);
+            unableToSort.Sort();
+            WriteListToFile(rootFolderPath + @"\UnableToSort.txt", this.unableToSort);
         }
 
         private void WriteAllFiles(DirectoryInfo targetInfo, int nTasks)
@@ -107,15 +192,6 @@ namespace ImageSorter
                 Task.WaitAll(tasks.ToArray());
                 tasks.Clear();
             }
-        }
-
-        public void WriteTrackersToFile(string rootFolderPath)
-        {
-            WriteDictionaryToFile(rootFolderPath +@"\PathMapping.txt", pathMap);
-            WriteDictionaryToFile(rootFolderPath +@"\DateMapping.txt", this.dateMap);
-            WriteDictionaryToFile(rootFolderPath +@"\DuplicatesMapping.txt", this.duplicateMap);
-            unableToSort.Sort();
-            WriteListToFile(rootFolderPath + @"\UnableToSort.txt", this.unableToSort);
         }
 
         private void ClearTrackers()
@@ -183,66 +259,6 @@ namespace ImageSorter
         }
 
         /// <summary>
-        /// Requires that valid file paths are passed to the method.
-        /// Handles sorting the image files in the root folder and producing the sorted results in the target.
-        /// </summary>
-        public void SortFolder(string rootPath, string targetPath)
-        {
-            SortFolder(rootPath, targetPath, true);
-        }
-
-        public void SortFolder(string rootPath, string targetPath, bool searchChildren)
-        {
-            DirectoryInfo rootInfo = System.IO.Directory.CreateDirectory(rootPath);
-            DirectoryInfo targetInfo = System.IO.Directory.CreateDirectory(targetPath);
-            SortFolder(rootInfo, targetInfo, searchChildren);
-        }
-
-        /// <summary>
-        /// Requires that valid file paths are passed to the method.
-        /// Sorts an image to a folder on the targetPath based on the image's
-        /// metadata.
-        /// </summary>
-        public void SortImage(string imagePath, string targetPath)
-        {
-            FileInfo image = new FileInfo(imagePath);
-            DirectoryInfo target = System.IO.Directory.CreateDirectory(targetPath);
-            SortImage(image, target);
-           
-        }
-
-        /// <summary>
-        /// Recursively gets all files in a directory (and sub-directories) that match the given extension filter
-        /// and returns the results as a list of files.
-        /// </summary>
-        public static List<FileInfo> GetAllFilesInDirectory(DirectoryInfo root, Regex extensionFilter, bool searchChildren)
-        {
-            List<FileInfo> list = new List<FileInfo>();
-            if (searchChildren)
-            {
-                GetAllFilesInDirectory(root, list, extensionFilter);
-            } else
-            {
-                foreach(FileInfo file in root.EnumerateFiles())
-                {
-                    if (extensionFilter.IsMatch(Path.GetExtension(file.FullName)))
-                    {
-                        list.Add(file);
-                    }
-                }
-            }
-            return list;
-        }
-
-        /// <summary>
-        /// Extract a single date from an image.
-        /// </summary>
-        public static DateTime ExtractDateFromImage(string imagePath)
-        {
-            return new List<DateTime>(GetDatesFromImage(imagePath, t => { return true; }))[0];
-        }
-
-        /// <summary>
         /// Recursively gets all directories in a root directory as well as child directories.
         /// </summary>
         private static List<DirectoryInfo> GetAllDirectoriesInDirectory(DirectoryInfo root)
@@ -260,7 +276,7 @@ namespace ImageSorter
                 {
                     RegisterFileDestination(GetDestFolderFromDate(file, targetInfo), file);
                 }
-                catch (ArgumentOutOfRangeException)
+                catch (Exception)
                 {
                     Console.Error.WriteLine("Encountered a file with no metadata.");
                     this.unableToSort.Add(file.FullName);
@@ -268,11 +284,23 @@ namespace ImageSorter
             }
         }
 
+        /// <summary>
+        /// Transfers an image file to the target location, based on the sorting established by the image's
+        /// metadata date.
+        /// </summary>
+        /// <param name="image">Image to sort.</param>
+        /// <param name="target">Target folder to sort into.</param>
         private void SortImage(FileInfo image, DirectoryInfo target)
         {
             TransferFile(GetDestFolderFromDate(image, target), image);
         }
 
+        /// <summary>
+        /// Creates a simple filter regex, each string passed will represent a string
+        /// that is an acceptable group in the regex.
+        /// </summary>
+        /// <param name="optionals">String groups to use in the regex.</param>
+        /// <returns>A Regex composed of the passed strings separated by |</returns>
         private Regex CreateRegex(params string[] optionals)
         {
             string reg = "^";
@@ -287,7 +315,7 @@ namespace ImageSorter
 
         /// <summary>
         /// Returns the folder that the file should be sorted into based on Metadata date/time value inside of targetRoot.
-        /// Also adds the mapping of the file -> date to this object's dateMap.
+        /// Also adds the mapping of the file -> date to the dateMap.
         /// </summary>
         private DirectoryInfo GetDestFolderFromDate(FileInfo file, DirectoryInfo targetRoot)
         {
@@ -301,7 +329,6 @@ namespace ImageSorter
         /// <summary>
         /// Handles the transfer logic for the file and adds the mapping of the file to this object's pathMap.
         /// </summary>
-        /// 
         private void TransferFile(DirectoryInfo destFolder, FileInfo file)
         {
             string newFilePath = destFolder.FullName + "\\" + file.Name;
@@ -314,6 +341,11 @@ namespace ImageSorter
             }
         }
 
+        /// <summary>
+        /// Transfers file to the location specified by the destFile.
+        /// </summary>
+        /// <param name="destFile">The new file/location</param>
+        /// <param name="file">The file to copy</param>
         private void TransferFile(FileInfo destFile, FileInfo file)
         {
             file.CopyTo(destFile.FullName, true);
@@ -352,7 +384,7 @@ namespace ImageSorter
             }
         }
 
-        void ManageDictionary(IDictionary<string, List<string>> dic, string key, string value)
+        private void ManageDictionary(IDictionary<string, List<string>> dic, string key, string value)
         {
             lock (this)
             {
@@ -370,7 +402,7 @@ namespace ImageSorter
             }
         }
 
-        void ManageDictionary(IDictionary<DateTime, List<string>> dic, DateTime key, string value)
+        private void ManageDictionary(IDictionary<DateTime, List<string>> dic, DateTime key, string value)
         {
             lock (this)
             {
@@ -459,6 +491,7 @@ namespace ImageSorter
                 {
                     if (filter(tag))
                     {
+                        //TODO: Maybe add error catch here?
                         dates.Add(ConvertTagToDate(tag));
                     }
                 }
@@ -510,13 +543,16 @@ namespace ImageSorter
         private static IEnumerable<MetadataExtractor.Directory> ExtractDirectories(string imagePath, Func<MetadataExtractor.Directory, bool> filter)
         {
             List<MetadataExtractor.Directory> list = new List<MetadataExtractor.Directory>();
-            foreach(MetadataExtractor.Directory dir in ImageMetadataReader.ReadMetadata(imagePath))
+
+            //TODO: Maybe add error catch here too?
+            foreach (MetadataExtractor.Directory dir in ImageMetadataReader.ReadMetadata(imagePath))
             {
                 if (filter(dir))
                 {
                     list.Add(dir);
                 }
             }
+            
             return list;
         }
     }

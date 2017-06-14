@@ -53,12 +53,20 @@ namespace ImageSorter
 
         private void startButton_Click(object sender, EventArgs e)
         {
-            if (Directory.Exists(targetPath) && Directory.Exists(sourcePath))
+
+            if (!Directory.Exists(sourcePath))
             {
-                DisableControls();
+                MessageBox.Show("A valid source path must be chosen");
+            }else if (!Directory.Exists(targetPath))
+            {
+                MessageBox.Show("A valid target path must be chosen.");
+            }else if(numThreads==0)
+            {
+                MessageBox.Show("A valid number of threads must be chosen.");
+            } else
+            {
                 StartEvent?.Invoke();
             }
-
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
